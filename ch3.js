@@ -51,6 +51,7 @@ log(this);
 // 			added to a list of functions to be called back, then we don't want to allow duplicates. This could be achieved by assigning to a newly created property on the
 // 			function when it is added, then check the value of this before adding to the collection:
 
+// a collection of unique functions
 var store = {
 	nextId: 1,
 	cache: {},
@@ -58,10 +59,79 @@ var store = {
 		if (!fn.id) {
 			fn.id = store.nextId++;
 			return !!(store.cache[fn.id] = fn);	
-			// the !! operator converts any expression to it's boolean equivalent - in this case, the value of a function which will always be true
+			// (no need for this - just to demonstrate the !! operator...
+			//	 converts any expression to it's boolean equivalent - in this case, the value of a function which will always be true
 		}
 	}
 };
+
+function ninja() { }
+
+assert(store.add(ninja), "function added to store successfully");
+assert(store.add(ninja), "shouldn't be possible to add a second time");
+
+// 11. self-memoizing functions - functions that retain information about previous invocations
+//
+// again, functions are just objects and we can declare and assign to properties of them. in this case, to cache computed answers
+
+function isPrime(value) {
+	// if there is no answers property then declare one
+	if (!isPrime.answers) isPrime.answers = {};
+	
+	// if we have the answer cached then return it
+	if (isPrime.answers[value] != null) {
+		return isPrime.answers[value];
+	}
+
+	var prime = value != 1 // 1 can never be prime
+	for (var i = 2; i < value; i++) {
+		if (value % i == 0) {
+			prime = false;
+			break;
+		}
+	}
+	return isPrime.answers[value] = prime;
+}
+
+assert(isPrime(5), "5 is prime");
+assert(isPrime.answers[5], "the answer was cached");
+
+// in this case, memoizing gives improved performance - esp for computationally intensive larger values
+// also, it all happens without the caller having to do anything
+
+// another example which caches the results of DOM queries
+
+function getElements(name) {
+	if (!getElements.cache) getElements.cache = {};
+
+	if (!getElements.cache[name]) {
+		getElements.cache[name] = document.getElementsByTagName(name);
+	}
+	return getElements.cache[name]; 
+}
+
+assert(getElements("ul").length > 0, "there is at least one unordered list tag on the page");
+assert(getElements.cache["ul"], "the list of DOM elements was cached.");
+
+// 3.4 Context - every function has a context accessed through the "this" reference which points to the object within which the function is being executed
+
+// if the function is being invoked as a method of an object, then the context is the method's object
+//
+// what about functions defined on the top level?
+
+function katana() {
+	this.isSharp = true;
+}
+
+katana();
+
+assert(isSharp === true, "a global property now exists"); // important to be aware of what a function's context is
+
+
+
+		
+
+
 
 
 
