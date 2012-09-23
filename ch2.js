@@ -36,8 +36,16 @@ function log() {
 // Test generation
 
 // Good tests are:
-    - repeatable
-    - simple
-    - independent
+//    - repeatable
+//    - simple
+//    - independent
 
-// deconstructive vs constructive
+// deconstructive vs constructive (??)
+
+// assert
+function assert(value, desc) {
+	var li = document.createElement("li");
+	li.className = value ? "pass" : "fail";
+	li.appendChild(document.createTextNode(desc));
+	document.getElementById("results").appendChild(li);
+}
