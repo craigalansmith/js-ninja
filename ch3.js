@@ -302,6 +302,16 @@ assert(people.find("Charles Bronson").length == 1, "found someone by first and l
 assert(people.find("Sam", "B", "Nobody") == null, "found nothing");
 
 
+// note that the different overloads are stored in closures - more in ch4. also, this technique is limited to overloading based on numbers of arguments - not type.
+
+// 3.6 check to see if an object is a function.
+
+
+function doIt() {}
+
+assert(typeof doIt == "function", "functions have a type of function");
+
+// however, this will not work in all situations cross-browser
 
 
 		
