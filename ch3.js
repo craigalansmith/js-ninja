@@ -187,12 +187,119 @@ assert(elements.length == 1 && elements[0].nodeType, "verify that we have an ele
 elements.find("results");
 assert(elements.length == 2 && elements[1].nodeType, "verify the second insertion");
 
-// (on page 51)
+// 3.5 - Variable-length argument lists
 
+// functions can accept an arbitrary number of arguments
 
+// finding the largest number in an array of ints
 
+// instead of looping through, we can use Math.max
 
+function smallest(array) {
+	return Math.min.apply(Math, array);
+}
 
+function largest(array) {
+	return Math.max.apply(Math, array);
+}
+
+// remember that apply() allows us to pass an array of args to a function
+
+assert(smallest([0, 1, 2, 3]) == 0, "found the smallest value");
+
+assert(largest([0, 1, 2, 3]) == 3, "found the largest value");
+
+// method overloading in javascript - unlike many other languages, we don't define separate versions of the function - instead we examine the arguments property.
+
+// merge the contents of multiple objects into a single root object
+// the root object is the first argument - subsequent arguments are merged into the root
+function merge(root) {
+	for (var i = 1; i < arguments.length; i++) {
+		
+		// for-in loop - iterates through all properties of an object setting the property name as the iteration item
+		for (var key in arguments[i]) {
+			root[key] = arguments[i][key];
+		}
+	}
+	return root;
+}
+
+// in javascript we can pass an arbitrary number of arguments to a function - nothing to do with the number of formal parameters in the function declaration
+
+var merged = merge(
+		{name: "Denmark"},
+		{city: "Copenhagen"});
+
+assert(merged.name == "Denmark", "the name is intact");
+assert(merged.city == "Copenhagen", "the city is intact");
+
+// multiply the first argument by the largest remaining argument
+function firstByLargestRemaining(first) {
+	// arguments is not a true array - fool the Array.prototype.slice to operate on it using call:
+	var args = Array.prototype.slice.call(arguments, 1);
+
+	return first * Math.max.apply(Math, args);
+}
+
+assert(firstByLargestRemaining(3, 1, 2, 3) == 9, "3*3=9 (first by largest)");
+
+// function overloading by simply inspecting the arguments property and branching can become unwieldy - there is another way:
+//
+// all functions have a length property which gives the number of formal parameters
+//
+// we create a function that binds anonymous functions to a common name:
+
+function addMethod(object, name, fn) {
+
+	// get a ref to the existing "name" property on "object"
+	var old = object[name];
+
+	// assign a new function to object.name, which will compare the number of arguments actually passed with the number of formal arguments of the new function fn.
+	// if the number of args matches the number fn expects, then fn is apply()ed...
+	// otherwise the old object.name is applied, providing it is actually a function.
+	//
+	// of course, old itelf could also be a function of this type, comparing the number of passed in args with the number of formal parameters.
+	object[name] = function() {
+		if (fn.length == arguments.length) {
+			return fn.apply(this, arguments);
+		}
+		else if (typeof old == 'function') {
+			return old.apply(this, arguments);
+		}
+	};
+}
+
+var people = {
+	values: ["Charles Bronson", "Chuck Norris", "Steven Seagal"]
+};
+
+addMethod(people, "find", function() {
+	return this.values;
+});
+
+addMethod(people, "find", function(name) {
+	var ret = [];
+	for (var i = 0; i < this.values.length; i++)
+		if (this.values[i].indexOf(name) == 0)
+			ret.push(this.values[i]);
+	return ret;
+});
+
+addMethod(people, "find", function(first, last) {
+	var ret = [];
+	for (var i = 0; i < this.values.length; i++)
+		if (this.values[i] == (first + " " + last))
+			ret.push(this.values[i]);
+	return ret;
+});
+
+assert(people.find().length == 3, "found everyone");
+
+assert(people.find("Chuck").length == 1, "found someone by first name");
+
+assert(people.find("Charles Bronson").length == 1, "found someone by first and last name");
+
+assert(people.find("Sam", "B", "Nobody") == null, "found nothing");
 
 
 
